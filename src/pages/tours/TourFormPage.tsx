@@ -2,9 +2,18 @@ import { useEffect, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { Plus, Trash2, Upload, X, Calendar, Clock, Users, Image, List, Tag } from 'lucide-react'
+import { Plus, Trash2, Upload, X, Calendar, Clock, Users, Image, List, Tag, Link } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '@/services/api'
+
+function toSlugPreview(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+}
 
 /* ── helpers ───────────────────────────────────────────────────────────── */
 function Section({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
@@ -36,6 +45,7 @@ export default function TourFormPage() {
   const navigate = useNavigate()
   const isEdit = !!slug
 
+  const [slugDisplay, setSlugDisplay] = useState<string>('')
   const [thumbFile, setThumbFile] = useState<File | null>(null)
   const [thumbPreview, setThumbPreview] = useState<string | null>(null)
   const [galleryPreviews, setGalleryPreviews] = useState<{ file: File; url: string }[]>([])
@@ -52,7 +62,7 @@ export default function TourFormPage() {
     queryFn: () => api.get('/destinations/?page_size=100').then(r => r.data.results ?? r.data),
   })
 
-  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, control, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       currency: 'BDT', is_active: true, is_featured: false,
       duration_days: 1, duration_hours: 0, max_group_size: 15,
@@ -68,6 +78,12 @@ export default function TourFormPage() {
       cancellation_partial_hours: 12,
     },
   })
+
+  // Live slug preview on create
+  const watchedTitle = watch('title' as any, '')
+  useEffect(() => {
+    if (!isEdit) setSlugDisplay(toSlugPreview(watchedTitle || ''))
+  }, [watchedTitle, isEdit])
 
   const highlights = useFieldArray({ control, name: 'highlights' as any })
   const included   = useFieldArray({ control, name: 'included'   as any })
@@ -85,6 +101,7 @@ export default function TourFormPage() {
     if (!existingTour) return
     const t = existingTour
     setTourId(t.id)
+    setSlugDisplay(t.slug ?? '')
     setThumbPreview(t.thumbnail)
     reset({
       title: t.title, description: t.description,
@@ -223,6 +240,23 @@ export default function TourFormPage() {
               <Field label="Tour Title *">
                 <input {...register('title', { required: true })} className="input" placeholder="e.g. Cox's Bazar Sunrise Beach Tour" />
               </Field>
+            </div>
+            <div className="md:col-span-2">
+              <label className="label">URL Slug {isEdit ? '(auto-generated, read-only)' : '(preview)'}</label>
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50">
+                <Link size={14} className="text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-500">/tours/</span>
+                <span className="text-sm font-medium text-gray-700 flex-1 break-all">
+                  {slugDisplay || <span className="text-gray-400 italic">will generate from title</span>}
+                </span>
+                {slugDisplay && (
+                  <button type="button"
+                    onClick={() => { navigator.clipboard.writeText(slugDisplay); toast.success('Slug copied!') }}
+                    className="text-xs text-brand-teal hover:underline shrink-0">
+                    Copy
+                  </button>
+                )}
+              </div>
             </div>
             <Field label="Destination *">
               <select {...register('destination', { required: true })} className="input">

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import api from '@/services/api'
+import api, { apiErrorMsg } from '@/services/api'
 
 export default function BlogFormPage() {
   const { slug } = useParams()
@@ -30,7 +30,7 @@ export default function BlogFormPage() {
   const mutation = useMutation({
     mutationFn: (d: any) => isEdit ? api.patch(`/blogs/${slug}/`, d) : api.post('/blogs/', d),
     onSuccess: () => { toast.success(isEdit ? 'Updated.' : 'Created.'); navigate('/blogs') },
-    onError: () => toast.error('Save failed.'),
+    onError: (e: any) => toast.error(apiErrorMsg(e, 'Save failed.')),
   })
 
   return (

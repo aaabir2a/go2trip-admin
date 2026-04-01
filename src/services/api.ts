@@ -34,3 +34,36 @@ api.interceptors.response.use(
 )
 
 export default api
+
+/**
+ * Extracts the most useful error message from an Axios error
+ * matching our API's { success, message, errors } response shape.
+ */
+export function apiErrorMsg(err: any, fallback = 'Something went wrong.'): string {
+  const data = err?.response?.data
+  if (!data) return err?.message || fallback
+
+  const parts: string[] = []
+
+  // Top-level message — skip the meaningless generic ones
+  if (data.message && !['An error occurred.', 'Error', 'Internal server error.'].includes(data.message)) {
+    parts.push(data.message)
+  }
+
+  // Field / non-field errors object
+  if (data.errors && typeof data.errors === 'object') {
+    Object.entries(data.errors as Record<string, unknown>).forEach(([key, val]) => {
+      const msgs = Array.isArray(val) ? val : [val]
+      msgs.forEach((m: any) => {
+        const text = String(m)
+        if (key === 'non_field_errors' || key === 'detail') {
+          if (!parts.includes(text)) parts.push(text)
+        } else {
+          parts.push(`${key.replace(/_/g, ' ')}: ${text}`)
+        }
+      })
+    })
+  }
+
+  return parts.length > 0 ? parts.join('\n') : fallback
+}

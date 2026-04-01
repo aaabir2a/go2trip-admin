@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Plus, Pencil, Trash2, Star } from 'lucide-react'
 import toast from 'react-hot-toast'
-import api from '@/services/api'
+import api, { apiErrorMsg } from '@/services/api'
 
 export default function ToursPage() {
   const [search, setSearch] = useState('')
@@ -18,7 +18,7 @@ export default function ToursPage() {
   const del = useMutation({
     mutationFn: (slug: string) => api.delete(`/tours/${slug}/`),
     onSuccess: () => { toast.success('Tour deleted.'); qc.invalidateQueries({ queryKey: ['tours'] }) },
-    onError: () => toast.error('Delete failed.'),
+    onError: (e: any) => toast.error(apiErrorMsg(e, 'Delete failed.')),
   })
 
   return (

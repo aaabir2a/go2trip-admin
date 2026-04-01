@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Filter } from 'lucide-react'
 import toast from 'react-hot-toast'
-import api from '@/services/api'
+import api, { apiErrorMsg } from '@/services/api'
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'badge-pending',
@@ -25,7 +25,7 @@ export default function BookingsPage() {
     mutationFn: ({ id, status: s, payment_status }: { id: number; status: string; payment_status?: string }) =>
       api.post(`/bookings/${id}/update-status/`, { status: s, payment_status }),
     onSuccess: () => { toast.success('Booking updated.'); qc.invalidateQueries({ queryKey: ['bookings'] }) },
-    onError: () => toast.error('Update failed.'),
+    onError: (e: any) => toast.error(apiErrorMsg(e, 'Update failed.')),
   })
 
   return (

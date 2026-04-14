@@ -41,7 +41,7 @@ export default function DestinationsPage() {
     setEditing(dest)
     setThumbPreview(dest.thumbnail || null)
     thumbFileRef.current = null
-    reset({ name: dest.name, country: dest.country, location: dest.location, description: dest.description })
+    reset({ name: dest.name, country: dest.country, location: dest.location, description: dest.description, destination_type: dest.destination_type || 'domestic' })
     setShowForm(true)
   }
 
@@ -55,6 +55,7 @@ export default function DestinationsPage() {
     fd.append('country', data.country)
     fd.append('location', data.location)
     fd.append('description', data.description)
+    fd.append('destination_type', data.destination_type || 'domestic')
     fd.append('is_active', 'true')
     if (thumbFileRef.current) fd.append('thumbnail', thumbFileRef.current)
     save.mutate(fd)
@@ -80,6 +81,13 @@ export default function DestinationsPage() {
             <div>
               <label className="label">Name *</label>
               <input {...register('name', { required: true })} className="input" placeholder="Cox's Bazar" />
+            </div>
+            <div>
+              <label className="label">Type *</label>
+              <select {...register('destination_type', { required: true })} className="input">
+                <option value="domestic">Domestic</option>
+                <option value="international">International</option>
+              </select>
             </div>
             <div>
               <label className="label">Country *</label>
@@ -135,7 +143,12 @@ export default function DestinationsPage() {
               }
               <div className="p-4 flex justify-between items-start">
                 <div>
-                  <h3 className="font-semibold">{d.name}</h3>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="font-semibold">{d.name}</h3>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${d.destination_type === 'international' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                      {d.destination_type === 'international' ? 'Intl' : 'Dom'}
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-500">{d.location}, {d.country}</p>
                   <p className="text-xs mt-1" style={{ color: '#0CBDB5' }}>{d.tour_count} tours</p>
                 </div>

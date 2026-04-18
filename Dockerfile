@@ -10,6 +10,6 @@ COPY . .
 RUN npm run build
 
 
-EXPOSE 80
+EXPOSE 5173
 
 CMD ["nginx", "-g", "daemon off;"]

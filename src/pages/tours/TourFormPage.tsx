@@ -67,7 +67,7 @@ export default function TourFormPage() {
   const [addMode, setAddMode] = useState<AddMode>('single')
   const [scheduleSlots, setScheduleSlots] = useState<SlotEntry[]>([])
   const [addPanelOpen, setAddPanelOpen] = useState(false)
-  const [tourId, setTourId] = useState<number | null>(null)
+  const [_tourId, setTourId] = useState<number | null>(null)
   // Edit state
   const [editingScheduleId, setEditingScheduleId] = useState<number | null>(null)
   const [editingSlots, setEditingSlots] = useState<SlotEntry[]>([])
@@ -80,8 +80,9 @@ export default function TourFormPage() {
     queryFn: () => api.get('/destinations/?page_size=100').then(r => r.data.results ?? r.data),
   })
 
-  const { register, handleSubmit, reset, control, watch, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, control, watch } = useForm({
     defaultValues: {
+      title: '', description: '', destination: '' as string | number,
       currency: 'BDT', is_active: true, is_featured: false,
       duration_days: 1, duration_hours: 0, max_group_size: 15,
       languages: 'English, Bangla',

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Map, Globe, CalendarCheck, Users, TrendingUp, DollarSign } from 'lucide-react'
+import { Map, Globe, CalendarCheck, Users } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import api from '@/services/api'
 

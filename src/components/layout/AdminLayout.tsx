@@ -2,11 +2,10 @@ import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Map, Globe, CalendarCheck, Users, BookOpen,
-  LogOut, Menu, X, ChevronRight,
+  LogOut, Menu, ChevronRight,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import api from '@/services/api'
-import toast from 'react-hot-toast'
 
 const NAV = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
